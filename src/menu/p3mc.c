@@ -3,6 +3,7 @@
 #include "main/cdctrl.h"
 
 #include "menu/memc.h"
+#include "menu/menu.h"
 #include "menu/menudata.h"
 #include "menu/menufont.h"
 
