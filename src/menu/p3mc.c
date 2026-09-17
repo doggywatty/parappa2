@@ -1259,31 +1259,37 @@ void P3MC_SetUserWorkTime(USER_DATA *puser) {
 
 int P3MC_SaveUser(MCRWDATA_HDL *pdhdl, int flg) {
     P3MC_WORK *pw = &P3MC_Work;
-    u_char *pData = pdhdl->pMemTop;
-    int mode = ((USER_HEADER*)pData)->user.mode;
-    
-    int stageNo = ((USER_HEADER*)pData)->user.stageNo;
-    int roundNo = ((USER_HEADER*)pData)->user.roundNo;
-    int fileNo = ((USER_HEADER*)pData)->user.fileNo;
-    int isVs = ((USER_HEADER*)pData)->user.isVs;
-    
-    u_char *name;
-    int ParaCol = 0;
-
-    name = (mode == 1) ? ((USER_HEADER*)pData)->user.name : ((USER_HEADER*)pData)->user.name1;
+    u_char    *pData = pdhdl->pMemTop;
+    u_char    *name;
+    int        mode = ((USER_HEADER*)pData)->user.mode;
+    int        stageNo = ((USER_HEADER*)pData)->user.stageNo;
+    int        roundNo = ((USER_HEADER*)pData)->user.roundNo;
+    int        fileNo = ((USER_HEADER*)pData)->user.fileNo;
+    int        isVs = ((USER_HEADER*)pData)->user.isVs;
+    int        ParaCol = 0;
 
     if (mode == 1) {
-        ParaCol = ((P3LOG_VAL *)pdhdl->pData)->nRound;
-        if (ParaCol < 0) ParaCol = 0;
-        if (ParaCol > 4) ParaCol = 4;
+        name = ((USER_HEADER*)pData)->user.name;
+    } else {
+        name = ((USER_HEADER*)pData)->user.name1;
+    }
+
+    if (mode == 1) {
+        P3LOG_VAL *pLog = pdhdl->pData;
+        ParaCol = pLog->nRound;
+        if (ParaCol < 0) {
+            ParaCol = 0;
+        }
+        if (ParaCol > 4) {
+            ParaCol = 4;
+        }
     }
 
     _P3MC_SetUserDirName(mode, fileNo);
+    _P3MC_SetBrowsInfo(mode, fileNo, name, stageNo, roundNo, isVs, ParaCol);
 
-    _P3MC_SetBrowsInfo(mode, fileNo, (char *)name, stageNo, roundNo, isVs, ParaCol);
+    isFileFlgCash = FALSE;
 
-    isFileFlgCash = 0;
-    
     P3MC_SetUserWorkTime(&pdhdl->pHead->user);
 
     memcpy(pdhdl->pHead->header, HedderID, 16);
@@ -1291,16 +1297,16 @@ int P3MC_SaveUser(MCRWDATA_HDL *pdhdl, int flg) {
     memcpy(pdhdl->pFoot->footer, FooterID, 16);
 
     pw->prg = 0;
+
     pw->data_no = fileNo;
     pw->data_mode = mode;
-    
     pw->data_stage = (mode == 1) ? 0 : stageNo;
 
     pw->prgflag = flg;
     pw->dhdl = pdhdl;
     pw->dstat = 0;
-    _P3MC_CheckUserDataHead(pw);
 
+    _P3MC_CheckUserDataHead(pw);
     return 0;
 }
 
