@@ -4,6 +4,7 @@ on:
     secrets:
       P3_BINARY_TOKEN: { required: true }
       P3_BINARY_REPO: { required: true }
+      JUL12_ENCRYPTION_KEY: { required: true }
 jobs:
   build:
     runs-on: ubuntu-latest
